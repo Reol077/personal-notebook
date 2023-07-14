@@ -1,0 +1,9 @@
+:root {
+    --van-nav-bar-height: 54px !important;
+    --van-nav-bar-title-font-size: 20px !important;
+    --van-nav-bar-icon-color: black !important;
+    --van-nav-bar-text-color: black !important;
+    --van-nav-bar-arrow-size: 20px !important;
+    --van-font-size-md:20px !important;
+    --van-floating-bubble-initial-gap:56px !important;
+}
