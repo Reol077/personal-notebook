@@ -1,12 +1,15 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './route'
 import axios from 'axios'
 import './assets/css/reset.css'
 import './assets/font/font.css'
+import './assets/iconfont/iconfont.css'
 import './assets/css/global.css'
 import 'animate.css'
-import 'vant/es/toast/style';
+import 'vant/es/toast/style'
+
 
 const app = createApp(App)
 
@@ -23,5 +26,6 @@ const axiosInstance = axios.create({
 })
 
 app.config.globalProperties.$http = axiosInstance
+app.use(createPinia())
 app.use(router)
 app.mount('#app')

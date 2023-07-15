@@ -40,3 +40,16 @@ exports.getArticle = (req, res) => {
         res.cc(results)
     })
 }
+
+exports.updateArticle = (req, res) => {
+    const id  = req.query.id;
+    const updatedArticle = req.body;
+    const sql = "UPDATE articles SET ? WHERE id = ?";
+    db.query(sql, [updatedArticle, id], (err, results) => {
+        if (err) return res.cc(err);
+        if (results.affectedRows === 0) {
+            return res.cc("修改失败，文章不存在", 1);
+        }
+        res.cc("修改成功", 0);
+    });
+};

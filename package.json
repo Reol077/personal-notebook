@@ -10,9 +10,11 @@
     "start": "cd server & node_modules\\.bin\\nodemon app | node_modules\\.bin\\pino-pretty"
   },
   "dependencies": {
+    "@vant/touch-emulator": "^1.4.0",
     "@vitejs/plugin-legacy": "^4.1.0",
     "animate.css": "^4.1.1",
     "axios": "^1.4.0",
+    "pinia": "^2.1.4",
     "sass": "^1.63.6",
     "terser": "^5.19.0",
     "vant": "^4.6.2",

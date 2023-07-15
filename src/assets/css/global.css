@@ -4,6 +4,8 @@
     --van-nav-bar-icon-color: black !important;
     --van-nav-bar-text-color: black !important;
     --van-nav-bar-arrow-size: 20px !important;
-    --van-font-size-md:20px !important;
-    --van-floating-bubble-initial-gap:56px !important;
+    --van-font-size-md: 20px !important;
+    --van-floating-bubble-initial-gap: 56px !important;
+    --van-tabbar-item-active-color: black !important;
+    --van-search-action-text-color: rgb(25, 137, 250) !important;
 }

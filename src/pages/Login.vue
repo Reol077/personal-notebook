@@ -74,7 +74,7 @@ const LoginInfo = ref({
     password: "123456",
 })
 
-const repassword = ""
+const repassword = ref("")
 
 function validatorUsername(val) {
     if (val === "") {

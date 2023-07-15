@@ -29,7 +29,7 @@ app.use((req, res, next) => {
 
 app.use(expressJWT({ secret: config.jwtSecretKey }).unless({ path: [/^\/api\/(login|regUser)$/] }))
 
-const fileStream = fs.createWriteStream('logs.txt', { flags: 'a' })
+const fileStream = fs.createWriteStream('logs.txt')
 const logger = pino({ stream: fileStream });
 app.use(logger)
 

@@ -15,7 +15,6 @@
                     <van-grid-item @click="showTags" v-if="outSelectedTagsLength < 3"><span><van-icon name="plus"
                                 style="margin-right: 10px;" />添加标签</span></van-grid-item>
                 </van-grid>
-
             </div>
         </van-form>
         <van-popup v-model:show="showTagsPopup" position="bottom" :style="{ height: '40%' }">
@@ -36,13 +35,14 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref, getCurrentInstance, watch, computed } from 'vue'
+import { ref, getCurrentInstance, watch, computed, onMounted } from 'vue'
 import { showFailToast, showSuccessToast } from 'vant/es';
-import { isHidden } from 'vant/lib/utils';
+import { useStore } from '../../store/index'
 
 
-const router = useRouter();
+const router = useRouter()
 const { $http } = getCurrentInstance().appContext.config.globalProperties
+const store = useStore()
 
 const note = ref({
     title: "",
@@ -78,7 +78,7 @@ const showHeader = computed(() => {
 
     const wordRegex = /\b([A-Za-z]+[’'-]?[A-Za-z]+)\b/g
     const words = note.value.content.match(wordRegex)
-    const wordCount = words ? words.length : 0; 
+    const wordCount = words ? words.length : 0;
 
     const totalCount = chineseCount + wordCount
 
@@ -86,6 +86,7 @@ const showHeader = computed(() => {
 })
 
 function backHome() {
+    store.note = {}
     router.push('/home')
 }
 
@@ -96,6 +97,7 @@ function showTags() {
         $http.get('getTags').then(res => {
             tags.value = res.data.tags.map(obj => obj.tag)
             tagsShow.value = tags.value
+            tagsShow.value = tagsShow.value.filter(item => !outSelectedTags.value.includes(item));
         }).catch(err => {
             showFailToast(err)
         })
@@ -145,16 +147,31 @@ function submit() {
     submitVal.tags = Array.from(outSelectedTags.value).join(',')
     submitVal.user = localStorage.getItem("user")
     submitVal.submit_time = formattedTime
-    $http.post('addArticle', submitVal).then(res => {
-        if (res.data.status !== 0) {
-            showFailToast(res.data.message)
-        } else {
-            showSuccessToast(res.data.message)
-            router.push('/home')
-        }
-    }).catch(err => {
-        showFailToast(err)
-    })
+    if (!store.edit) {
+        $http.post('addArticle', submitVal).then(res => {
+            if (res.data.status !== 0) {
+                showFailToast(res.data.message)
+            } else {
+                showSuccessToast(res.data.message)
+                router.push('/home')
+            }
+        }).catch(err => {
+            showFailToast(err)
+        })
+    } else {
+        $http.put('updateArticle', submitVal, { params: { id: store.note.id } }).then(res => {
+            if (res.data.status !== 0) {
+                showFailToast(res.data.message)
+            } else {
+                showSuccessToast(res.data.message)
+                store.note = {}
+                store.edit = false
+                router.push('/home')
+            }
+        }).catch(err => {
+            showFailToast(err)
+        })
+    }
 }
 
 watch(search, (newVal, oldVal) => {
@@ -164,6 +181,14 @@ watch(search, (newVal, oldVal) => {
         })
     } else {
         tagsShow.value = tags.value
+    }
+})
+
+onMounted(() => {
+    if (Object.keys(store.note).length !== 0) {
+        note.value.title = store.note.title
+        note.value.content = store.note.content
+        outSelectedTags.value = store.note.tags.split(',')
     }
 })
 </script>

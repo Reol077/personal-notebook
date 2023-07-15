@@ -1,0 +1,23 @@
+{
+  "id": "4146963",
+  "name": "temp",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "4651935",
+      "name": "修改",
+      "font_class": "xiugai",
+      "unicode": "e605",
+      "unicode_decimal": 58885
+    },
+    {
+      "icon_id": "1280",
+      "name": "大缩略图列表",
+      "font_class": "dasuolvetuliebiao",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    }
+  ]
+}
