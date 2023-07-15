@@ -17,16 +17,16 @@
                 </van-grid>
             </div>
         </van-form>
-        <van-popup v-model:show="showTagsPopup" position="bottom" :style="{ height: '40%' }">
-            <van-nav-bar title="选择标签" left-arrow @click-left="showTagsPopup = false" right-text="添加"
+        <van-popup v-model:show="showTagsPopup" position="bottom" :style="{ height: '40%' }" @close="cancelAdd">
+            <van-nav-bar title="选择标签" left-arrow @click-left="cancelAdd" right-text="添加"
                 @click-right="addOutSelectedTags"></van-nav-bar>
             <van-grid :column-num="3" :gutter="10" style="margin-top: 10px;">
                 <van-grid-item v-for="(val, index) in innerSelectedTags"><span>{{ val }}<van-icon name="cross"
                             class="deleteIcon" @click="deleteInnerSelectedTags(index)" /></span></van-grid-item>
             </van-grid>
-            <van-search v-model="search" placeholder="请输入搜索内容" />
+            <van-search v-model="search" placeholder="请输入要搜索的标签" @search="onSearch" />
             <van-grid :column-num="3" :gutter="10">
-                <van-grid-item v-for="(val, index) in tagsShow" @click="addInnerSelectedTags(index)">{{ val
+                <van-grid-item v-for="(val, index) in tagsToDisplay" @click="addInnerSelectedTags(index)">{{ val
                 }}</van-grid-item>
             </van-grid>
         </van-popup>
@@ -35,7 +35,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref, getCurrentInstance, watch, computed, onMounted } from 'vue'
+import { ref, getCurrentInstance, computed, onMounted, watch } from 'vue'
 import { showFailToast, showSuccessToast } from 'vant/es';
 import { useStore } from '../../store/index'
 
@@ -51,6 +51,8 @@ const note = ref({
 
 const tags = ref([])
 const tagsShow = ref([])
+const tagsShowSearch = ref([])
+const searchIndexInShow = ref([])
 
 const showTagsPopup = ref(false)
 const innerSelectedTags = ref([])
@@ -92,9 +94,9 @@ function backHome() {
 
 function showTags() {
     showTagsPopup.value = true
-    innerSelectedTags.value = outSelectedTags.value
+    innerSelectedTags.value = Array.from(outSelectedTags.value)
     if (tags.value.length === 0) {
-        $http.get('getTags').then(res => {
+        $http.get('getTags', { params: { user: localStorage.getItem("user") } }).then(res => {
             tags.value = res.data.tags.map(obj => obj.tag)
             tagsShow.value = tags.value
             tagsShow.value = tagsShow.value.filter(item => !outSelectedTags.value.includes(item));
@@ -105,8 +107,14 @@ function showTags() {
 }
 
 function addInnerSelectedTags(index) {
-    innerSelectedTags.value.push(tags.value[index])
-    tagsShow.value.splice(index, 1)
+    if (tagsShowSearch.value.length > 0) {
+        innerSelectedTags.value.push(tagsShowSearch.value[index])
+        tagsShowSearch.value.splice(index, 1)
+        tagsShow.value.splice(searchIndexInShow.value[index], 1)
+    } else {
+        innerSelectedTags.value.push(tagsShow.value[index])
+        tagsShow.value.splice(index, 1)
+    }
 
 }
 
@@ -119,16 +127,43 @@ function addOutSelectedTags() {
     if (innerSelectedTags.value.length > 3) {
         showFailToast("最多只能添加三个标签")
         return
+    } else {
+        outSelectedTags.value = innerSelectedTags.value
+        innerSelectedTags.value = []
+        showTagsPopup.value = false
     }
-    outSelectedTags.value = innerSelectedTags.value
-    innerSelectedTags.value = []
-    showTagsPopup.value = false
 }
 
 function deleteOutSelectedTags(index) {
     tagsShow.value.push(outSelectedTags.value[index])
     outSelectedTags.value.splice(index, 1)
 }
+
+function onSearch() {
+    if (search.value === '') {
+        tagsShowSearch.value = tagsShow.value
+        return
+    } else {
+        $http.get('getTagsByVal', {
+            params: {
+                user: localStorage.getItem("user"),
+                select: search.value
+            }
+        }).then(res => {
+            tagsShowSearch.value = res.data.tags.map(obj => obj.tag)
+            tagsShowSearch.value = tagsShowSearch.value.filter(item => !innerSelectedTags.value.includes(item))
+            searchIndexInShow.value = tagsShowSearch.value.map(item => tagsShow.value.indexOf(item))
+        })
+    }
+}
+
+const tagsToDisplay = computed(() => {
+    if (tagsShowSearch.value.length > 0) return tagsShowSearch.value
+    else {
+        search.value = ''
+        return tagsShow.value
+    }
+})
 
 function submit() {
     if (note.value.title === "") {
@@ -174,15 +209,11 @@ function submit() {
     }
 }
 
-watch(search, (newVal, oldVal) => {
-    if (newVal !== "") {
-        $http.get('getNoteByVal', { params: { select: search.value } }).then(res => {
-            tagsShow.value = res.data.tags.map(obj => obj.tag)
-        })
-    } else {
-        tagsShow.value = tags.value
-    }
-})
+function cancelAdd() {
+    if (!showTagsPopup.value) return
+    showTagsPopup.value = false
+    Array.prototype.push.apply(tagsShow.value, innerSelectedTags.value);
+}
 
 onMounted(() => {
     if (Object.keys(store.note).length !== 0) {

@@ -1,8 +1,9 @@
 const db = require('../db/index')
 
 exports.getTags = (req, res) => {
-    const sql = 'select tag from tags'
-    db.query(sql, (err, results) => {
+    const user = req.query.user
+    const sql = 'select tag from tags where user=?'
+    db.query(sql, user,(err, results) => {
         if (err) {
             return res.cc(err)
         } else {
@@ -12,9 +13,10 @@ exports.getTags = (req, res) => {
 }
 
 exports.getTagsByVal = (req, res) => {
-    const value = req.query.select
-    const sql = "select tag from tags where tag like '%" + value + "%'"
-    db.query(sql, (err, results) => {
+    const select = req.query.select
+    const user = req.query.user
+    const sql = "select tag from tags where tag like '%" + select + "%' and user = ?"
+    db.query(sql, user,(err, results) => {
         if (err) {
             return res.cc(err)
         } else {

@@ -3,8 +3,8 @@
         <van-nav-bar title="笔记"></van-nav-bar>
         <van-row class="search">
             <van-col class="icon">
-                <van-icon class-prefix="icon" name="dasuolvetuliebiao iconfont" :class="{ isActive: store.gridRowActive == 0 }"
-                    @click="store.gridRowActive = 0" />
+                <van-icon class-prefix="icon" name="dasuolvetuliebiao iconfont"
+                    :class="{ isActive: store.gridRowActive == 0 }" @click="store.gridRowActive = 0" />
                 <van-icon name="bars" :class="{ isActive: store.gridRowActive == 1 }" @click="store.gridRowActive = 1" />
             </van-col>
             <van-col>
@@ -39,7 +39,7 @@
         <div style="height: 50px;"></div>
         <van-popup v-model:show="showSearch" position="top">
             <van-search v-model="searchKey" show-action placeholder="请输入搜索关键词" @clear="onClear" @search="onSearch"
-                @cancel="onCancel" />
+                @cancel="onCancel" autocomplete="off" />
         </van-popup>
     </div>
 </template>
@@ -138,7 +138,7 @@ const timeRow = computed(() => {
         } else if (hours <= 3) {
             return '3小时内';
         } else if (hours <= 24) {
-            return '一天内';
+            return '今天内';
         } else if (days === 1) {
             return '昨天';
         } else if (days === 2) {
