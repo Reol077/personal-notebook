@@ -36,10 +36,20 @@ exports.login = (req, res) => {
         const compareResult = bcrypt.compareSync(userinfo.password, results[0].password)
         if (!compareResult) res.cc('登录失败，密码错误')
         else {
-            const user = { ...results[0], password: "", user_pic: '' }
+            const user = { ...results[0], password: "" }
             const tokenStr = jwt.sign(user, config.jwtSecretKey, { expiresIn: config.expiresIn })
             res.send({ status: 0, message: "登录成功", token: 'Bearer ' + tokenStr })
         }
     })
 
+}
+
+exports.getUser = (req, res) => {
+    const user = req.query.user
+    const sql = 'select id,nickname,user_pic from users where username=?'
+
+    db.query(sql, user, (err, results) => {
+        if (err) return res.cc(err)
+        res.cc(results, 0)
+    })
 }

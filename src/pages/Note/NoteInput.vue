@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="page">
         <van-nav-bar title="录入" left-arrow right-text="发布" @click-left="backHome" @click-right="submit"></van-nav-bar>
         <van-form>
             <van-cell-group inset>
@@ -91,6 +91,7 @@ const showHeader = computed(() => {
 function backHome() {
     store.note = {}
     router.push('/home')
+    store.editShow = false
 }
 
 function showTags() {
@@ -190,6 +191,7 @@ function submit() {
             } else {
                 showSuccessToast(res.data.message)
                 router.push('/home')
+                store.editShow = false
             }
         }).catch(err => {
             showFailToast(err)
@@ -202,6 +204,7 @@ function submit() {
                 showSuccessToast(res.data.message)
                 store.note = {}
                 store.edit = false
+                store.editShow = false
                 router.push('/home')
             }
         }).catch(err => {

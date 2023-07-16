@@ -1,5 +1,5 @@
 <template>
-    <div class="notebox">
+    <div class="box">
         <van-nav-bar title="笔记"></van-nav-bar>
         <van-row class="search">
             <van-col class="icon" span="8">
@@ -47,24 +47,26 @@
         <div v-if="showArticles.length == 0">
             <van-empty description="暂无笔记" />
         </div>
-        <van-floating-bubble axis="xy" magnetic="x" v-model:offset="offset" icon="plus" 
+        <van-floating-bubble axis="xy" magnetic="x" v-model:offset="offset" icon="plus"
             @click="Input"></van-floating-bubble>
         <div style="height: 50px;"></div>
         <van-popup v-model:show="showSearch" position="top">
             <van-search v-model="searchKey" show-action placeholder="请输入搜索关键词" @clear="onClear" @search="onSearch"
                 @cancel="onCancel" autocomplete="off" />
         </van-popup>
+        <van-popup v-model:show="store.editShow" position="right" :style="{ width: '100%', height: '100%' }">
+            <router-view></router-view>
+        </van-popup>
     </div>
 </template>
 
 <script setup>
-import { ref, getCurrentInstance, onMounted, computed, watch } from 'vue'
+import { ref, getCurrentInstance, onMounted, computed, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { showFailToast, showConfirmDialog, showSuccessToast } from 'vant'
 import { useStore } from '../../store/index'
 import '@vant/touch-emulator'
 import 'vant/es/dialog/style';
-
 
 const router = useRouter();
 const { $http } = getCurrentInstance().appContext.config.globalProperties
@@ -99,7 +101,8 @@ function onClickLeft() {
 }
 
 function Input() {
-    router.push('/home/input')
+    router.push('/home/note/input')
+    store.editShow = true
 }
 
 const title = computed(() => {
@@ -187,7 +190,8 @@ const timeRow = computed(() => {
 function editNote(index) {
     store.note = showArticles.value[index]
     store.edit = true
-    router.push('/home/input')
+    router.push('/home/note/input')
+    store.editShow = true
 }
 
 function search() {
@@ -264,19 +268,21 @@ watch(tagVal, (newVal, oldVal) => {
     })
 })
 
+
+watch(
+    computed(() => {
+        return store.editShow
+    }),
+    (newVal, oldVal) => {
+        getArticle()
+    })
+
 onMounted(() => {
     getArticle()
 })
 </script>
 
 <style lang="scss">
-.notebox {
-    height: 100vh;
-    background: var(--backgroung-color-gray);
-    overflow: auto;
-}
-
-
 .icon {
     font-size: 24px;
 
@@ -324,6 +330,7 @@ onMounted(() => {
         display: inline-block;
         width: 100%;
         text-align: right;
+        font-size: 12px;
     }
 }
 

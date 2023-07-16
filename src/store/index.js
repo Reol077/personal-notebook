@@ -5,6 +5,7 @@ export const useStore = defineStore({
     state: () => ({
         note: {},
         edit: false,
+        editShow: false,
         gridRowActive: 0,
         tagId: 0
     }),

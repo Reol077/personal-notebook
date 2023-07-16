@@ -1,5 +1,5 @@
 :root {
-    --van-nav-bar-height: 54px !important;
+    --van-nav-bar-height: 48px !important;
     --van-nav-bar-title-font-size: 20px !important;
     --van-nav-bar-icon-color: black !important;
     --van-nav-bar-text-color: black !important;
@@ -9,6 +9,18 @@
     --van-tabbar-item-active-color: black !important;
     --van-search-action-text-color: rgb(25, 137, 250) !important;
     --van-dropdown-menu-height: 24px !important;
-    --van-cell-font-size:15px !important;
+    --van-cell-font-size: 15px !important;
     --backgroung-color-gray: rgb(245, 245, 245);
 }
+
+.box {
+    height: 100vh;
+    width: 100vw;
+    background: var(--backgroung-color-gray);
+    overflow: auto;
+}
+
+/* .page {
+    position: absolute;
+    width: 100vw;
+} */

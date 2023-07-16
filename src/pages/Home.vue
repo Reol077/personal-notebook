@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="page">
         <router-view></router-view>
         <van-tabbar route>
             <van-tabbar-item replace to="/home/note" :icon="noteIcon('/home/note')">笔记</van-tabbar-item>
@@ -40,4 +40,10 @@ function mineIcon(path) {
     }
 }
 </script>
+
+<style scoped>
+.page {
+    position: absolute;
+}
+</style>
 

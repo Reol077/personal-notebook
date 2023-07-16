@@ -99,18 +99,12 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.box {
-    height: 100vh;
-    background: var(--backgroung-color-gray);
-    overflow: auto;
+.van-grid {
+    .van-grid-item {
+        padding: 10px;
 
-    .van-grid {
-        .van-grid-item {
-            padding: 10px;
-
-            .itemFont {
-                font-weight: bold;
-            }
+        .itemFont {
+            font-weight: bold;
         }
     }
 }
