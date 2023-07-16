@@ -11,7 +11,10 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import { useStore } from '../store/index'
+
 const router = useRouter()
+const store = useStore()
 
 function noteIcon(path) {
     if (router.currentRoute.value.fullPath === path) {
@@ -36,6 +39,5 @@ function mineIcon(path) {
         return 'home-o';
     }
 }
-
 </script>
 

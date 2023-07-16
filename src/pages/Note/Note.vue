@@ -1,40 +1,53 @@
 <template>
-    <div class="box">
+    <div class="notebox">
         <van-nav-bar title="笔记"></van-nav-bar>
         <van-row class="search">
-            <van-col class="icon">
+            <van-col class="icon" span="8">
                 <van-icon class-prefix="icon" name="dasuolvetuliebiao iconfont"
                     :class="{ isActive: store.gridRowActive == 0 }" @click="store.gridRowActive = 0" />
                 <van-icon name="bars" :class="{ isActive: store.gridRowActive == 1 }" @click="store.gridRowActive = 1" />
             </van-col>
-            <van-col>
+            <van-col span="8" style="text-align: center;">
+                <van-dropdown-menu class="dropdownCla">
+                    <van-dropdown-item v-model="tagVal" :options="tagName" />
+                </van-dropdown-menu>
+            </van-col>
+            <van-col span="8" style="text-align: right;">
                 <van-icon name="search" @click="search" />
             </van-col>
         </van-row>
         <div v-if="showArticles.length !== 0">
             <van-grid :column-num="2" :gutter="10" v-if="store.gridRowActive === 0">
-                <van-grid-item v-for="(val, index) in showArticles" @click="editNote(index)">
-                    <van-row class="userTime">
-                        <van-col span="12" style="text-align: left;">{{ val.user }}</van-col>
-                        <van-col span="12" style="text-align: right;">{{ submitTime(val.submit_time) }}</van-col>
-                    </van-row>
-                    <van-row class="title">{{ title(val.title) }}</van-row>
-                    <van-row class="content">{{ content(val.content) }}</van-row>
+                <van-grid-item v-for="(val, index) in showArticles">
+                    <div @click="editNote(index)" style="width: 100%;">
+                        <van-row class="userTime">
+                            <van-col span="12" style="text-align: left;">{{ val.user }}</van-col>
+                            <van-col span="12" style="text-align: right;">{{ submitTime(val.submit_time) }}</van-col>
+                        </van-row>
+                        <van-row class="title">{{ title(val.title) }}</van-row>
+                        <van-row class="content">{{ content(val.content) }}</van-row>
+                    </div>
+                    <van-row class="delete"><i @click="deleteArticle(val.id)" class="iconfont icon-shanchu"></i></van-row>
                 </van-grid-item>
             </van-grid>
             <van-grid :column-num="1" :gutter="10" v-if="store.gridRowActive === 1">
                 <van-grid-item v-for="(val, index) in showArticles" @click="editNote(index)">
                     <van-row class="title">{{ titleRow(val.title) }}</van-row>
                     <van-row class="content">{{ contentRow(val.content) }}</van-row>
-                    <van-row class="time"><i class="iconfont icon-xiugai" style="margin-right: 5px;"></i> {{
-                        timeRow(val.submit_time) }}</van-row>
+                    <van-row class="time" justify="space-between">
+                        <div style="display: inline-block;">
+                            <i class="iconfont icon-xiugai" style="margin-right: 5px;"></i>
+                            {{ timeRow(val.submit_time) }}
+                        </div>
+                        <i @click="deleteArticle(val.id)" class="iconfont icon-shanchu"></i>
+                    </van-row>
                 </van-grid-item>
             </van-grid>
         </div>
         <div v-if="showArticles.length == 0">
             <van-empty description="暂无笔记" />
         </div>
-        <van-floating-bubble axis="xy" magnetic="x" v-model:offset="offset" icon="plus"
+        <van-floating-bubble axis="xy" magnetic="x" v-model:offset="offset" icon="plus" 
             @click="Input"></van-floating-bubble>
         <div style="height: 50px;"></div>
         <van-popup v-model:show="showSearch" position="top">
@@ -45,11 +58,12 @@
 </template>
 
 <script setup>
-import { ref, getCurrentInstance, onMounted, computed } from 'vue'
+import { ref, getCurrentInstance, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { showFailToast } from 'vant'
+import { showFailToast, showConfirmDialog, showSuccessToast } from 'vant'
 import { useStore } from '../../store/index'
 import '@vant/touch-emulator'
+import 'vant/es/dialog/style';
 
 
 const router = useRouter();
@@ -62,6 +76,24 @@ const searchKey = ref('')
 
 const showArticles = ref([])
 const articles = ref([])
+
+const tagVal = ref('')
+const tagName = computed(() => {
+    if (!store.tag) {
+        let tagList = []
+        $http.get('getTags', { params: { user: localStorage.getItem("user") } }).then(res => {
+            let tempList = res.data.tags
+            tagList.push({ text: "全部", value: 0 })
+            tempList.forEach((item, index) => {
+                tagList.push({ text: item.tag, value: item.id })
+            })
+        }).catch(err => {
+            showFailToast(err)
+        })
+        return tagList
+    }
+    return ref()
+})
 function onClickLeft() {
     router.push('/')
 }
@@ -192,22 +224,58 @@ function onCancel() {
     reset()
 }
 
-onMounted(() => {
+
+function getArticle() {
     $http.get('getArticle', { params: { user: localStorage.getItem("user") } }).then(res => {
         articles.value = res.data.message
         showArticles.value = articles.value
+        tagVal.value = store.tagId
+    }).catch(err => {
+        showFailToast(err)
+    })
+}
+
+function deleteArticle(id) {
+    showConfirmDialog({
+        title: '确认删除',
+    }).then(() => {
+        $http.delete('deleteArticle', { params: { id: id } }).then(res => {
+            if (res.data.status !== 0) return showFailToast(res.data.message)
+            showSuccessToast(res.data.message)
+            getArticle()
+        }).catch(err => {
+            showFailToast(err)
+        })
+    })
+}
+
+watch(tagVal, (newVal, oldVal) => {
+    $http.get('getArticleByTag', {
+        params: {
+            user: localStorage.getItem("user"),
+            tag: newVal === 0 ? '' : tagName.value[tagName.value.findIndex(item => item.value === newVal)].text
+        }
+    }).then(res => {
+        articles.value = res.data.message
+        showArticles.value = articles.value
+        store.tagId = newVal
     }).catch(err => {
         showFailToast(err)
     })
 })
+
+onMounted(() => {
+    getArticle()
+})
 </script>
 
-<style lang="scss" scoped>
-.box {
+<style lang="scss">
+.notebox {
     height: 100vh;
-    background: rgb(245, 245, 245);
+    background: var(--backgroung-color-gray);
     overflow: auto;
 }
+
 
 .icon {
     font-size: 24px;
@@ -249,6 +317,16 @@ onMounted(() => {
     margin-bottom: 10px;
 }
 
+.delete {
+    width: 100%;
+
+    i {
+        display: inline-block;
+        width: 100%;
+        text-align: right;
+    }
+}
+
 .time {
     width: 100%;
     text-align: left;
@@ -257,6 +335,20 @@ onMounted(() => {
 
     i {
         font-size: 12px;
+    }
+}
+
+.dropdownCla {
+    display: inline-block;
+
+    .van-dropdown-menu__bar {
+        background-color: var(--backgroung-color-gray);
+        box-shadow: none;
+
+        .van-ellipsis {
+            font-size: 18px;
+        }
+
     }
 }
 </style>

@@ -4,6 +4,7 @@ const pino = require('pino-http')
 const cors = require('cors')
 const userRouter = require('./router/user')
 const noteRouter = require('./router/note')
+const tagsRouter = require('./router/tags')
 const joi = require('@hapi/joi')
 const expressJWT = require('express-jwt')
 const config = require('./config')
@@ -35,6 +36,7 @@ app.use(logger)
 
 app.use('/api', userRouter)
 app.use('/api', noteRouter)
+app.use('/api', tagsRouter)
 
 app.use((err, req, res, next) => {
     if (err instanceof joi.ValidationError) return res.cc(err)

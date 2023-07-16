@@ -13,7 +13,8 @@ const routes = [
         component: () => import('../pages/Home.vue'),
         children: [
             { path: '/home', redirect: '/home/note' },
-            { path: '/home/note', component: () => import('../pages/Note/Note.vue') }
+            { path: '/home/note', component: () => import('../pages/Note/Note.vue') },
+            { path:'/home/class', component: () => import('../pages/class/Class.vue')},
         ]
     },
     {

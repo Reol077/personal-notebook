@@ -10,7 +10,6 @@ import './assets/css/global.css'
 import 'animate.css'
 import 'vant/es/toast/style'
 
-
 const app = createApp(App)
 
 if (localStorage.getItem("token") === null) localStorage.setItem("token", "")

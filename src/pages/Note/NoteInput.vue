@@ -4,7 +4,8 @@
         <van-form>
             <van-cell-group inset>
                 <van-field :placeholder="showHeader" readonly class="header"></van-field>
-                <van-field v-model="note.title" placeholder="请输入标题" autocomplete="off" class="title"></van-field>
+                <van-field v-model="note.title" autosize type="textarea" placeholder="请输入标题" autocomplete="off"
+                    class="title"></van-field>
                 <van-field v-model="note.content" autosize type="textarea" maxlength="50000" placeholder="请输入正文"
                     class="content" />
             </van-cell-group>
@@ -231,6 +232,8 @@ onMounted(() => {
 
 .title {
     font-size: 28px !important;
+    line-height: 1.2;
+
 }
 
 .content {

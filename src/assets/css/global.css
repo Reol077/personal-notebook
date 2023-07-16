@@ -8,4 +8,7 @@
     --van-floating-bubble-initial-gap: 56px !important;
     --van-tabbar-item-active-color: black !important;
     --van-search-action-text-color: rgb(25, 137, 250) !important;
+    --van-dropdown-menu-height: 24px !important;
+    --van-cell-font-size:15px !important;
+    --backgroung-color-gray: rgb(245, 245, 245);
 }
