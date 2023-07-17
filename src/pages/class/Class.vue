@@ -1,10 +1,11 @@
 <template>
     <div class="box">
-        <van-nav-bar title="标签"></van-nav-bar>
+        <van-nav-bar title="标签" :right-text="deleteShow ? '完成' : '编辑'"
+            @click-right="deleteShow = !deleteShow"></van-nav-bar>
         <van-grid :column-num="3">
-            <van-grid-item v-for="(val, index) in tagList" :style="{ 'color': '#' + val.color }"
-                @click="showTagArticle(val.id)">
-                <span class="itemFont">{{ val.tag }}</span>
+            <van-grid-item v-for="(val, index) in tagList" :style="{ 'color': '#' + val.color }">
+                <span class="itemFont" @click="showTagArticle(val.id)">{{ val.tag }}</span>
+                <van-icon v-if="deleteShow" name="cross" class="delete-icon" @click="deleteTag(index)" />
             </van-grid-item>
             <van-grid-item @click="showPopup = true">
                 <span><van-icon name="plus" style="margin-right: 10px;" />标签</span>
@@ -28,8 +29,9 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { ref, getCurrentInstance, computed, onMounted, watch } from 'vue'
-import { showFailToast, showSuccessToast } from 'vant/es'
-import { storeToRefs } from 'pinia';
+import { showFailToast, showSuccessToast, showConfirmDialog } from 'vant/es'
+import 'vant/es/dialog/style';
+
 
 import { useStore } from '../../store/index'
 
@@ -53,7 +55,7 @@ const colorName = ref([
     { text: '酥芳红', value: '8e354b' },
 ])
 
-const loop = ref('')
+const deleteShow = ref(false)
 
 const fontColor = computed(() => {
     return { 'color': '#' + colorVal.value + ' !important' }
@@ -75,6 +77,7 @@ function onSubmit() {
         } else {
             getTags()
             showSuccessToast(res.data.message)
+            tagName.value = ""
             showPopup.value = false
         }
     })
@@ -88,10 +91,33 @@ function getTags() {
     })
 }
 
+function deleteTag(index) {
+    showConfirmDialog({
+        title: '确认删除',
+    }).then(() => {
+        $http.delete('deleteTag', {
+            params: {
+                id: tagList.value[index].id,
+                user: localStorage.getItem("user"),
+                tag: tagList.value[index].tag
+            }
+        }).then(res => {
+            if (res.data.status !== 0) return showFailToast(res.data.message)
+            store.tagId = 0
+            showSuccessToast(res.data.message)
+            getTags()
+        }).catch(err => {
+            showFailToast(err)
+        })
+    })
+}
+
 function showTagArticle(id) {
     store.tagId = id
     router.push('/home/note')
 }
+
+
 onMounted(() => {
     getTags()
 })
@@ -105,6 +131,18 @@ onMounted(() => {
 
         .itemFont {
             font-weight: bold;
+        }
+
+        .delete-icon {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 14px;
+            padding: 2px;
+            color: white;
+            background: gray;
+            z-index: 999;
+            border-radius: 25px;
         }
     }
 }

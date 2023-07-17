@@ -83,7 +83,7 @@ function validatorUsername(val) {
     if (val.length < 3 || val.length > 12) {
         return "用户名长度须在3-12个字符"
     } else {
-        const regex = /^(?=.*[a-zA-Z])(?=.*\d).+$/
+        const regex = /^[a-zA-Z\d]{3,12}$/
         if (!regex.test(val)) {
             return "用户名需要同时包含数字和字母"
         }
@@ -119,6 +119,8 @@ function onRegister() {
         if (res.data.status !== 0) {
             showFailToast(res.data.message)
         } else {
+            RegInfo.value = {}
+            repassword.value = ""
             showSuccessToast(res.data.message)
             regFlag.value = false
         }

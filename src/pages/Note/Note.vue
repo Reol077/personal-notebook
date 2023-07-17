@@ -21,7 +21,8 @@
                 <van-grid-item v-for="(val, index) in showArticles">
                     <div @click="editNote(index)" style="width: 100%;">
                         <van-row class="userTime">
-                            <van-col span="12" style="text-align: left;">{{ val.user }}</van-col>
+                            <van-col span="12" style="text-align: left;">{{ val.nickname !== null ? val.nickname : val.user
+                            }}</van-col>
                             <van-col span="12" style="text-align: right;">{{ submitTime(val.submit_time) }}</van-col>
                         </van-row>
                         <van-row class="title">{{ title(val.title) }}</van-row>
@@ -231,6 +232,7 @@ function onCancel() {
 
 function getArticle() {
     $http.get('getArticle', { params: { user: localStorage.getItem("user") } }).then(res => {
+        if (res.data.status !== 0) return showFailToast(res.data.message)
         articles.value = res.data.message
         showArticles.value = articles.value
         tagVal.value = store.tagId

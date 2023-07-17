@@ -11,7 +11,7 @@ exports.addArticle = (req, res) => {
 
 exports.getArticle = (req, res) => {
     const user = req.query.user
-    const sql = "select * from articles where user = ?"
+    const sql = "select a.*,u.nickname from articles a inner join users u on a.user = u.username where u.username = ?"
     db.query(sql, user, (err, results) => {
         if (err) return res.cc(err)
         res.cc(results, 0)
@@ -21,7 +21,7 @@ exports.getArticle = (req, res) => {
 exports.getArticleByTag = (req, res) => {
     const user = req.query.user
     const tag = req.query.tag
-    const sql = "select * from articles where user = ? and tags like '%" + tag + "%'"
+    const sql = "select a.*,u.nickname from articles a inner join users u on a.user = u.username where u.username = ? and a.tags like '%" + tag + "%'"
     db.query(sql, [user], (err, results) => {
         if (err) return res.cc(err)
         res.cc(results, 0)

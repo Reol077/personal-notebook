@@ -9,4 +9,6 @@ router.get('/getTagsByVal', tags_handle.getTagsByVal)
 
 router.post('/addTags', tags_handle.addTags)
 
+router.delete('/deleteTag',tags_handle.deleteTag)
+
 module.exports = router

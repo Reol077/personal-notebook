@@ -2,7 +2,7 @@
     <div class="page">
         <van-nav-bar title="录入" left-arrow right-text="发布" @click-left="backHome" @click-right="submit"></van-nav-bar>
         <van-form>
-            <van-cell-group inset>
+            <van-cell-group class="inputBack">
                 <van-field :placeholder="showHeader" readonly class="header"></van-field>
                 <van-field v-model="note.title" autosize type="textarea" placeholder="请输入标题" autocomplete="off"
                     class="title"></van-field>
@@ -10,7 +10,7 @@
                     class="content" />
             </van-cell-group>
             <div class="fixed-bottom">
-                <van-grid :column-num="3" :gutter="10" style="margin-top: 10px;">
+                <van-grid :column-num="3" :gutter="10">
                     <van-grid-item v-for="(val, index) in outSelectedTags"><span>{{ val }}<van-icon name="cross"
                                 class="deleteIcon" @click="deleteOutSelectedTags(index)" /></span></van-grid-item>
                     <van-grid-item @click="showTags" v-if="outSelectedTagsLength < 3"><span><van-icon name="plus"
@@ -254,5 +254,14 @@ onMounted(() => {
 
 .deleteIcon {
     margin-left: 10px;
+}
+
+.inputBack {
+    height: calc(100vh - 48px);
+    background: rgb(250,250,250);
+
+    .van-cell {
+        background: rgb(250,250,250);
+    }
 }
 </style>

@@ -33,3 +33,26 @@ exports.addTags = (req, res) => {
         res.cc("新建成功", 0)
     })
 }
+
+exports.deleteTag = (req, res) => {
+    const id = req.query.id
+    const user = req.query.user
+    const tag = req.query.tag
+
+    const selectSql = "select * from articles where user = ? and tags like '%" + tag + "%'"
+    db.query(selectSql, user, (err, results) => {
+        if (err) return res.cc(err)
+        if (results.length > 0) return res.cc("删除失败，有文章正在使用该标签")
+        else {
+            const sql = "DELETE from tags where id = ?"
+            db.query(sql, id, (err, results) => {
+                if (err) return res.cc(err)
+                if (results.affectedRows === 0) {
+                    return res.cc("删除失败，标签不存在")
+                }
+                res.cc("删除成功", 0)
+            })
+        }
+    })
+
+}
