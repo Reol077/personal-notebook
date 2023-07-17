@@ -1,6 +1,7 @@
 const db = require('../db/index')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const multer = require('multer')
 const config = require('../config')
 
 exports.regUser = (req, res) => {
