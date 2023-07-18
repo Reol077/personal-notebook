@@ -51,9 +51,30 @@
         <van-floating-bubble axis="xy" magnetic="x" v-model:offset="offset" icon="plus"
             @click="Input"></van-floating-bubble>
         <div style="height: 50px;"></div>
-        <van-popup v-model:show="showSearch" position="top">
-            <van-search v-model="searchKey" show-action placeholder="请输入搜索关键词" @clear="onClear" @search="onSearch"
-                @cancel="onCancel" autocomplete="off" />
+        <van-popup v-model:show="showSearch" position="top" @closed="showDeleteHis = false">
+            <van-search ref="inputRef" v-model="searchKey" show-action placeholder="请输入搜索关键词" @clear="onClear"
+                @search="onSearch" @cancel="onCancel" autocomplete="off" />
+            <div class="searchBox" v-if="searchHistory.length !== 0">
+                <van-row class="searchHis">
+                    <van-col span="2"></van-col>
+                    <van-col span="10" style="text-align: left;">搜索历史</van-col>
+                    <van-col span="10" style="text-align: right;">
+                        <i @click="showDeleteHis = true" v-if="showDeleteHis === false" class="iconfont icon-shanchu"></i>
+                        <span v-if="showDeleteHis === true">
+                            <span @click="deleteHisAll" class="deleteAll">全部删除</span>
+                            <span class="divide">|</span>
+                            <span class="deleteCompelete" @click="showDeleteHis = false">完成</span>
+                        </span>
+                    </van-col>
+                    <van-col span=2></van-col>
+                </van-row>
+                <div class="textHis">
+                    <span class="out" v-for="(val, index) in searchHistory"><span @click="changeSearchKey(index)">{{
+                        val.search_item
+                    }}</span> <van-icon @click="deleteHisItem(index)" v-if="showDeleteHis === true"
+                            name="cross" /></span>
+                </div>
+            </div>
         </van-popup>
         <van-popup v-model:show="store.editShow" position="right" :style="{ width: '100%', height: '100%' }">
             <router-view></router-view>
@@ -76,6 +97,9 @@ const bubbleHeight = window.innerHeight - 150
 const offset = ref({ x: -20, y: bubbleHeight })
 const showSearch = ref(false)
 const searchKey = ref('')
+const showDeleteHis = ref(false)
+const inputRef = ref(null);
+const searchHistory = ref([])
 
 const showArticles = ref([])
 const articles = ref([])
@@ -103,6 +127,7 @@ function onClickLeft() {
 
 function Input() {
     router.push('/home/note/input')
+    store.edit = false
     store.editShow = true
 }
 
@@ -197,6 +222,7 @@ function editNote(index) {
 
 function search() {
     showSearch.value = true
+    getSearchHis()
 }
 
 function reset() {
@@ -223,6 +249,11 @@ function onSearch() {
     }, [])
     showArticles.value = indexList.map(index => showArticles.value[index])
     showSearch.value = false
+    $http.post('addSearchHis', { user: localStorage.getItem("user"), search_item: searchKey.value }).then(res => {
+        if (res.data.status !== 0) return showFailToast("记录搜索记录失败")
+    }).catch(err => {
+        return showFailToast(err)
+    })
 }
 
 function onCancel() {
@@ -241,6 +272,22 @@ function getArticle() {
     })
 }
 
+function getSearchHis() {
+    $http.get('getSearchHis', { params: { user: localStorage.getItem("user") } }).then(res => {
+        if (res.data.status !== 0) return showFailToast("获取历史记录失败")
+        else {
+            searchHistory.value = res.data.message
+        }
+    }).catch(err => {
+        showFailToast(err)
+    })
+}
+
+function changeSearchKey(index) {
+    searchKey.value = searchHistory.value[index].search_item
+    inputRef.value.focus();
+}
+
 function deleteArticle(id) {
     showConfirmDialog({
         title: '确认删除',
@@ -253,6 +300,20 @@ function deleteArticle(id) {
             showFailToast(err)
         })
     })
+}
+
+function deleteHisItem(index) {
+    $http.delete('deleteSearchHis', { params: { id: searchHistory.value[index].id } }).then(res => {
+        if (res.data.status !== 0) return showFailToast("删除失败")
+    })
+    getSearchHis()
+}
+
+function deleteHisAll() {
+    $http.delete('deleteSearchHisAll', { params: { user: localStorage.getItem("user") } }).then(res => {
+        if (res.data.status !== 0) return showFailToast("删除失败")
+    })
+    getSearchHis()
 }
 
 watch(tagVal, (newVal, oldVal) => {
@@ -307,6 +368,48 @@ onMounted(() => {
     font-size: 12px;
     width: 100%;
     margin-bottom: 10px;
+}
+
+.searchBox {
+    .searchHis {
+        font-size: 12px;
+        width: 100%;
+        margin: 10px 0;
+
+        .deleteAll {
+            display: inline-block;
+            margin-right: 5px;
+            color: gray;
+        }
+
+        .divide {
+            color: gray;
+        }
+
+        .deleteCompelete {
+            display: inline-block;
+            margin-left: 5px;
+        }
+    }
+
+    .textHis {
+        margin: 10px 20px;
+
+        .out {
+            display: inline-block;
+            border: 1px solid rgb(240, 240, 240);
+            border-radius: 25px;
+            padding: 10px;
+            margin: 2px 5px;
+            font-size: 12px;
+        }
+
+        .van-icon {
+            margin-left: 5px;
+        }
+    }
+
+
 }
 
 .title {

@@ -19,4 +19,7 @@ router.put('/updatePassword', expressJoi(updata_password_schema), user_handle.up
 
 router.delete('/removeUser', user_handle.removeUser)
 
+router.post('/updateAvatar', user_handle.updateAvatar)
+
+
 module.exports = router

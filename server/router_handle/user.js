@@ -2,6 +2,8 @@ const db = require('../db/index')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const multer = require('multer')
+const fs = require('fs')
+const path = require('path')
 const config = require('../config')
 
 exports.regUser = (req, res) => {
@@ -111,4 +113,43 @@ exports.removeUser = (req, res) => {
         if (results.affectedRows !== 1) return res.cc("注销失败")
         res.cc("注销成功", 0)
     })
+}
+
+exports.updateAvatar = (req, res) => {
+    const upload = multer({ dest: '../server/image' })
+    upload.single('pic')(req, res, function (err) {
+        if (err) {
+            res.status(500).send(err)
+        } else {
+            const ext = path.extname(req.file.originalname)
+            const newName = Date.now() + ext
+            const oldPath = req.file.path
+            const newPath = path.join(path.dirname(oldPath), newName)
+            fs.rename(oldPath, newPath, (err) => {
+                if (err) {
+                    res.status(500).send(err)
+                } else {
+                    const sql = 'UPDATE users set user_pic = ? where username = ?'
+                    db.query(sql, [newPath, req.body.user], (err, results) => {
+                        if (err) return res.cc(err)
+                        if (results.affectedRows === 0) {
+                            return res.cc(results.message)
+                        }
+                        res.cc("修改成功", 0)
+                    })
+
+                }
+            })
+        }
+    })
+    /*
+     const sql = 'update users set ? where id = ?'
+     db.query(sql, [req.body, req.user.id], (err, results) => {
+         if (err) return res.cc(err)
+         if (results.affectedRows === 0) {
+             return res.cc(results.message)
+         }
+         res.cc("修改成功", 0)
+     })
+     */
 }

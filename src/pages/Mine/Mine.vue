@@ -3,7 +3,7 @@
         <van-nav-bar title="我的" style="margin-bottom: 30px;" right-text="退出" @click-right="editLogin"></van-nav-bar>
         <van-row justify="center">
             <van-col span="24" style="text-align: center;">
-                <van-image height="5rem" round :src="userInfo.user_pic"></van-image>
+                <van-image @click="uploadAvatarShow = true" height="5rem" round :src="userInfo.user_pic"></van-image>
             </van-col>
         </van-row>
         <van-cell-group inset style="margin-top: 30px;">
@@ -53,6 +53,23 @@
                 </div>
             </div>
         </van-popup>
+        <van-popup class="avatar" v-model:show="uploadAvatarShow" position="bottom">
+            <van-row>
+                <van-col span="24" @click="previewImage">
+                    查看头像
+                </van-col>
+            </van-row>
+            <van-row>
+                <van-col span="24">
+                    <van-uploader :after-read="uploadAvatar">
+                        上传头像
+                    </van-uploader>
+                </van-col>
+            </van-row>
+            <van-row>
+                <van-col span="24" @click="uploadAvatarShow = false">取消</van-col>
+            </van-row>
+        </van-popup>
     </div>
 </template>
 
@@ -60,8 +77,9 @@
 import { ref, getCurrentInstance, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import defaultAvatar from '../../assets/image/touixang.png'
-import { showFailToast, showSuccessToast, showConfirmDialog } from 'vant/es'
+import { showFailToast, showSuccessToast, showConfirmDialog, showImagePreview } from 'vant/es'
 import 'vant/es/dialog/style'
+import 'vant/es/image-preview/style'
 
 const { $http } = getCurrentInstance().appContext.config.globalProperties
 const router = useRouter()
@@ -71,6 +89,7 @@ const editUserInfo = ref({})
 const userInfo = ref({})
 const editShow = ref(false)
 const active = ref(0)
+const uploadAvatarShow = ref(false)
 
 const editPassword = ref({
     oldPassword: "",
@@ -167,7 +186,11 @@ function getUserInfo() {
             userInfo.value = { ...res.data.message[0] }
             userInfo.value.username = user
             userInfo.value.nickname = userInfo.value.nickname === null ? user : userInfo.value.nickname
-            userInfo.value.user_pic = userInfo.value.user_pic === null ? avatar : userInfo.value.user_pic
+            // if (userInfo.value.user_pic !== null) {
+            //     userInfo.value.user_pic = dataURI
+            // } else {
+            //     userInfo.value.user_pic = avatar
+            // }
 
             editUserInfo.value = { ...userInfo.value }
         }
@@ -181,19 +204,50 @@ function editLogin() {
     })
 }
 
+function previewImage() {
+    showImagePreview([userInfo.value.user_pic]);
+}
+
+function uploadAvatar(file) {
+    return new Promise((resolve, reject) => {
+        const form = new FormData()
+        form.append('pic', file.file)
+        form.append('user', localStorage.getItem("user"))
+        $http.post('/updateAvatar', form, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }).then(res => {
+            console.log("ok", res);
+        }).catch(err => {
+            console.log(err);
+        })
+    })
+    /* TODO 数据库保存BLOB
+    console.log(file);
+    console.log(file.file);
+    $http.post('updateAvatar', { user_pic: file.file })
+        .then(res => {
+            if (res.data.status !== 0) return showFailToast("上传失败")
+            console.log(res.data.message);
+        }).catch(err => {
+            console.log(err);
+        })
+    */
+}
+
 
 onMounted(() => {
     getUserInfo()
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" >
 .van-cell {
     font-size: 18px;
 }
 
 .editBox {
-    background: var(--backgroung-color-gray);
     height: calc(100vh - 78px);
     padding-top: 30px;
 
@@ -214,7 +268,29 @@ onMounted(() => {
             margin-top: 20px;
         }
     }
+}
 
+.avatar {
+    border-radius: 25px 25px 0 0;
+
+    .van-row {
+        height: 48px;
+        line-height: 48px;
+
+        .van-col {
+            text-align: center;
+            font-size: 20px;
+        }
+    }
+
+    .van-row:nth-child(3) {
+        background: var(--backgroung-color-gray) !important;
+        padding-top: 10px;
+
+        .van-col {
+            background: white;
+        }
+    }
 }
 </style>
 
