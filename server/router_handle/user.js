@@ -44,7 +44,6 @@ exports.login = (req, res) => {
             res.send({ status: 0, message: "登录成功", token: 'Bearer ' + tokenStr })
         }
     })
-
 }
 
 exports.getUser = (req, res) => {
@@ -130,6 +129,9 @@ exports.updateAvatar = (req, res) => {
                     res.status(500).send(err)
                 } else {
                     const sql = 'UPDATE users set user_pic = ? where username = ?'
+
+                    // 服务器使用绝对路径，本地使用相对路径
+                    // db.query(sql, [path.resolve(newPath), req.body.user], (err, results) => {
                     db.query(sql, [newPath, req.body.user], (err, results) => {
                         if (err) return res.cc(err)
                         if (results.affectedRows === 0) {

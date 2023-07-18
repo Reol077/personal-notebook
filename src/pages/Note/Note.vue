@@ -28,11 +28,22 @@
                         <van-row class="title">{{ title(val.title) }}</van-row>
                         <van-row class="content">{{ content(val.content) }}</van-row>
                     </div>
-                    <van-row class="delete"><i @click="deleteArticle(val.id)" class="iconfont icon-shanchu"></i></van-row>
+                    <van-row class="time" justify="space-between">
+                        <div style="display: inline-block;">
+                            <i class="iconfont icon-xiugai" style="margin-right: 5px;"></i>
+                            {{ timeRow(val.submit_time) }}
+                        </div>
+                        <i @click="deleteArticle(val.id)" class="iconfont icon-shanchu"></i>
+                    </van-row>
                 </van-grid-item>
             </van-grid>
             <van-grid :column-num="1" :gutter="10" v-if="store.gridRowActive === 1">
                 <van-grid-item v-for="(val, index) in showArticles" @click="editNote(index)">
+                    <van-row class="userTime">
+                        <van-col span="12" style="text-align: left;">{{ val.nickname !== null ? val.nickname : val.user
+                        }}</van-col>
+                        <van-col span="12" style="text-align: right;">{{ submitTime(val.submit_time) }}</van-col>
+                    </van-row>
                     <van-row class="title">{{ titleRow(val.title) }}</van-row>
                     <van-row class="content">{{ contentRow(val.content) }}</van-row>
                     <van-row class="time" justify="space-between">
@@ -52,7 +63,7 @@
             @click="Input"></van-floating-bubble>
         <div style="height: 50px;"></div>
         <van-popup v-model:show="showSearch" position="top" @closed="showDeleteHis = false">
-            <van-search ref="inputRef" v-model="searchKey" show-action placeholder="请输入搜索关键词" @clear="onClear"
+            <van-search ref="inputRef" v-model="searchKey" show-action placeholder="请输入标题以搜索" @clear="onClear"
                 @search="onSearch" @cancel="onCancel" autocomplete="off" />
             <div class="searchBox" v-if="searchHistory.length !== 0">
                 <van-row class="searchHis">

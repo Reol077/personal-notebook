@@ -3,7 +3,7 @@
         <van-nav-bar title="我的" style="margin-bottom: 30px;" right-text="退出" @click-right="editLogin"></van-nav-bar>
         <van-row justify="center">
             <van-col span="24" style="text-align: center;">
-                <van-image @click="uploadAvatarShow = true" height="5rem" round :src="userInfo.user_pic"></van-image>
+                <van-image @click="uploadAvatarShow = true" height="5rem" width="5rem" round :src="userInfo.user_pic"></van-image>
             </van-col>
         </van-row>
         <van-cell-group inset style="margin-top: 30px;">
@@ -186,12 +186,7 @@ function getUserInfo() {
             userInfo.value = { ...res.data.message[0] }
             userInfo.value.username = user
             userInfo.value.nickname = userInfo.value.nickname === null ? user : userInfo.value.nickname
-            // if (userInfo.value.user_pic !== null) {
-            //     userInfo.value.user_pic = dataURI
-            // } else {
-            //     userInfo.value.user_pic = avatar
-            // }
-
+            if (userInfo.value.user_pic === null) userInfo.value.user_pic = avatar
             editUserInfo.value = { ...userInfo.value }
         }
     })
@@ -205,7 +200,8 @@ function editLogin() {
 }
 
 function previewImage() {
-    showImagePreview([userInfo.value.user_pic]);
+    showImagePreview([userInfo.value.user_pic])
+    uploadAvatarShow.value = false
 }
 
 function uploadAvatar(file) {
@@ -218,9 +214,13 @@ function uploadAvatar(file) {
                 'Content-Type': 'multipart/form-data'
             }
         }).then(res => {
-            console.log("ok", res);
+            if (res.data.status === 0) {
+                uploadAvatarShow.value = false
+                showSuccessToast("上传成功！")
+                getUserInfo()
+            }
         }).catch(err => {
-            console.log(err);
+            showFailToast(err)
         })
     })
     /* TODO 数据库保存BLOB

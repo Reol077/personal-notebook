@@ -47,5 +47,5 @@ app.use((err, req, res, next) => {
 
 
 app.listen(PORT, () => {
-    console.log(`api server running at http://127.0.0.1:${PORT}`)
+    console.log(`listening on ${PORT} ...`)
 })

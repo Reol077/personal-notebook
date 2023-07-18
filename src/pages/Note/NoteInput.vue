@@ -257,11 +257,12 @@ onMounted(() => {
 }
 
 .inputBack {
-    height: calc(100vh - 48px);
-    background: rgb(250,250,250);
+    height: calc(100vh - 116px);
+    background: rgb(250, 250, 250);
+    overflow: auto;
 
     .van-cell {
-        background: rgb(250,250,250);
+        background: rgb(250, 250, 250);
     }
 }
 </style>

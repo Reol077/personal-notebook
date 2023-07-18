@@ -70,8 +70,8 @@ const RegInfo = ref({
 })
 
 const LoginInfo = ref({
-    username: "admin123",
-    password: "123456",
+    username: "",
+    password: "",
 })
 
 const repassword = ref("")
@@ -85,7 +85,7 @@ function validatorUsername(val) {
     } else {
         const regex = /^[a-zA-Z\d]{3,12}$/
         if (!regex.test(val)) {
-            return "用户名需要同时包含数字和字母"
+            return "用户名只能是字母或数字"
         }
     }
 }
@@ -115,6 +115,7 @@ function showRegister() {
 }
 
 function onRegister() {
+    RegInfo.value.password=btoa(RegInfo.value.password)
     $http.post('regUser', RegInfo.value).then(res => {
         if (res.data.status !== 0) {
             showFailToast(res.data.message)
@@ -131,6 +132,7 @@ function onRegister() {
 }
 
 function onLogin() {
+    LoginInfo.value.password=btoa(LoginInfo.value.password)
     $http.post('login', LoginInfo.value).then(res => {
         if (res.data.status !== 0) {
             showFailToast(res.data.message)
@@ -151,7 +153,8 @@ function onLogin() {
 
 <style lang="scss" scoped>
 .box {
-    background-image: url('../assets/image/background.jpg');
+    // background-image: url('../assets/image/background.jpg');
+    background-image: url('http://101.34.9.164:8080/root/server/image/background.jpg');
     background-size: cover;
     background-repeat: no-repeat;
     height: 100vh;
