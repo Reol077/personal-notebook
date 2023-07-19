@@ -16,9 +16,11 @@
                 <van-icon name="search" @click="search" />
             </van-col>
         </van-row>
-        <div v-if="showArticles.length !== 0">
-            <van-grid :column-num="2" :gutter="10" v-if="store.gridRowActive === 0">
-                <van-grid-item v-for="(val, index) in showArticles">
+        <van-grid v-if="showArticles.length !== 0">
+            <!-- <van-grid class="grid" :column-num="2" :gutter="10" v-if="store.gridRowActive === 0"> -->
+            <div class="grid" v-if="store.gridRowActive === 0">
+                <!-- <van-grid-item class="note" v-for="(val, index) in showArticles"> -->
+                <div class="note" v-for="(val, index) in showArticles">
                     <div @click="editNote(index)" style="width: 100%;">
                         <van-row class="userTime">
                             <van-col span="12" style="text-align: left;">{{ val.nickname !== null ? val.nickname : val.user
@@ -35,8 +37,10 @@
                         </div>
                         <i @click="deleteArticle(val.id)" class="iconfont icon-shanchu"></i>
                     </van-row>
-                </van-grid-item>
-            </van-grid>
+                </div>
+                <!-- </van-grid-item> -->
+            </div>
+            <!-- </van-grid> -->
             <van-grid :column-num="1" :gutter="10" v-if="store.gridRowActive === 1">
                 <van-grid-item v-for="(val, index) in showArticles" @click="editNote(index)">
                     <van-row class="userTime">
@@ -55,7 +59,7 @@
                     </van-row>
                 </van-grid-item>
             </van-grid>
-        </div>
+        </van-grid>
         <div v-if="showArticles.length == 0">
             <van-empty description="暂无笔记" />
         </div>
@@ -421,6 +425,19 @@ onMounted(() => {
     }
 
 
+}
+
+.grid{
+    column-count: 2;
+    column-gap: 0;
+
+    .note{
+        break-inside: avoid;
+        margin: 5px;
+        padding: 20px;
+        background: white;
+        border-radius: 5px;
+    }
 }
 
 .title {
