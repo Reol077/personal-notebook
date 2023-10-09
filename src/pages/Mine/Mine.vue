@@ -143,6 +143,8 @@ function onSubmit() {
             if (editPassword.value.reNewPassword !== editPassword.value.newPassword) {
                 return showFailToast("两次输入的密码不一致")
             } else {
+                editPassword.value.oldPassword=btoa(editPassword.value.oldPassword)
+                editPassword.value.newPassword=btoa(editPassword.value.newPassword)
                 $http.put('updatePassword', { newPassword: editPassword.value.newPassword, oldPassword: editPassword.value.oldPassword }).then(res => {
                     if (res.data.status !== 0) return showFailToast(res.data.message)
                     else {

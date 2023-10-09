@@ -1,4 +1,4 @@
-# <p align="center">《移动应用程序开发》期末大作业 </p>
+# `<p align="center">`《移动应用程序开发》期末大作业 `</p>`
 
 演示地址：http://101.34.9.164:8080/#/home/note
 
@@ -49,7 +49,7 @@
 首先克隆本项目：
 
 ```git
-https://github.com/Reol077/personal-notebook.git
+git clone https://github.com/Reol077/personal-notebook.git
 ```
 
 进入personal-notebook目录
@@ -60,7 +60,7 @@ cd personal-notebook
 
 使用pnpm安装依赖包
 
-``` shell
+```shell
 pnpm install
 ```
 

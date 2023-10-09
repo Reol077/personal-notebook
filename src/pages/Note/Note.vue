@@ -437,6 +437,8 @@ onMounted(() => {
         padding: 20px;
         background: white;
         border-radius: 5px;
+        width: calc(50vw - 52px);
+        
     }
 }
 
